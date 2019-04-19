@@ -2,9 +2,11 @@ package com.mikeriv.ssui_2016.puzzlegame;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -17,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -141,16 +144,50 @@ public class PuzzleGameActivity extends AppCompatActivity {
             }
         }
 
-        // TODO createPuzzleTileViews with the appropriate width, height
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int screenWidth = size.x;
-        int screenHeight = size.y;
+        final LinearLayout rootView = (LinearLayout)findViewById(R.id.layout_game_display);
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-        int minTileSize = screenWidth / mPuzzleBoardSize;
+                        // TODO createPuzzleTileViews with the appropriate width, height
+                        int screenWidth = rootView.getWidth();
+                        int screenHeight = rootView.getHeight();
 
-        createPuzzleTileViews(minTileSize, minTileSize);
+                        int resid = (screenHeight - screenWidth) / 2;
+                        float residWeight = (float)resid / screenHeight;
+                        float mainContentWeight = 1 - 2*residWeight;
+
+                        LinearLayout boardContainer = (LinearLayout)findViewById(R.id.boardContainer);
+                        LinearLayout btnScoreContainer = (LinearLayout)findViewById(R.id.btnScoreContainer);
+                        LinearLayout topPadding = (LinearLayout)findViewById(R.id.topPadding);
+
+                        LinearLayout.LayoutParams lpBoardContainer = new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                0,
+                                mainContentWeight
+                        );
+                        boardContainer.setLayoutParams(lpBoardContainer);
+
+                        LinearLayout.LayoutParams lpBtnScoreContainer = new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                0,
+                                residWeight
+                        );
+                        btnScoreContainer.setLayoutParams(lpBtnScoreContainer);
+
+                        LinearLayout.LayoutParams lpTopPadding = new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                0,
+                                residWeight
+                        );
+                        topPadding.setLayoutParams(lpTopPadding);
+
+                        int minTileSize = screenWidth / mPuzzleBoardSize;
+                        createPuzzleTileViews(minTileSize, minTileSize);
+                    }
+                });
     }
 
     /**
@@ -166,13 +203,13 @@ public class PuzzleGameActivity extends AppCompatActivity {
         // Make sure each tileView gets a click listener for interaction
         // Be sure to set the appropriate LayoutParams so that your tileViews
         // So that they fit your gameboard properly\
-        LinearLayout outerContainer = (LinearLayout)findViewById(R.id.boardContainer);
+        LinearLayout boardContainer = (LinearLayout)findViewById(R.id.boardContainer);
         for(int r = 0; r < rowsCount; r++){
             LinearLayout rowContainer = new LinearLayout(getApplicationContext());
             rowContainer.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams lpRowContainer = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    0,
                     0.25f
             );
             rowContainer.setLayoutParams(lpRowContainer);
@@ -191,7 +228,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
                 LinearLayout imageContainer = new LinearLayout(getApplicationContext());
                 imageContainer.setOrientation(LinearLayout.HORIZONTAL);
                 LinearLayout.LayoutParams lpImageContainer = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        0,
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         0.25f
                 );
@@ -200,7 +237,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
 
                 rowContainer.addView(imageContainer);
             }
-            outerContainer.addView(rowContainer);
+            boardContainer.addView(rowContainer);
         }
     }
 

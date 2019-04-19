@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/layout_game_display"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:orientation="vertical"
-        android:padding="0dp"
-        android:weightSum="1"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="com.mikeriv.ssui_2016.puzzlegame.PuzzleGameActivity"
-        tools:showIn="@layout/activity_puzzle_game">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_game_display"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="0dp"
+    android:layout_marginTop="0dp"
+    android:layout_marginEnd="0dp"
+    android:layout_marginBottom="0dp"
+    android:orientation="vertical"
+    android:padding="0dp"
+    android:weightSum="1"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.mikeriv.ssui_2016.puzzlegame.PuzzleGameActivity"
+    tools:showIn="@layout/activity_puzzle_game">
 
     <LinearLayout
+        android:id="@+id/topPadding"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0"
@@ -26,61 +26,46 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/boardContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_margin="0dp"
+        android:layout_weight="0.8"
         android:orientation="vertical"
-        android:weightSum="1">
-
-        <LinearLayout
-            android:id="@+id/boardContainer"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_margin="0dp"
-            android:layout_weight="0.8"
-            android:orientation="vertical"
-            android:padding="0dp">
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/btnScoreContainer"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_margin="0dp"
-            android:layout_weight="0.2"
-            android:gravity="bottom"
-            android:orientation="horizontal"
-            android:padding="0dp">
-
-            <TextView
-                android:id="@+id/text_score"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/text_medium_margin"
-                android:layout_marginRight="@dimen/text_medium_margin"
-                android:gravity="center_vertical"
-                android:text="@string/title_score_board"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Button
-                android:id="@+id/btnNewGame"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="New Game" />
-
-        </LinearLayout>
+        android:padding="0dp">
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/btnScoreContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0"
-        android:orientation="vertical"></LinearLayout>
+        android:layout_margin="0dp"
+        android:layout_weight="0.2"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="0dp">
+
+        <TextView
+            android:id="@+id/text_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/text_medium_margin"
+            android:layout_marginRight="@dimen/text_medium_margin"
+            android:gravity="center_vertical"
+            android:text="@string/title_score_board"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/btnNewGame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="New Game" />
 
     </LinearLayout>
+
+</LinearLayout>
 
     <!-- Todo: include your puzzle board layout- you may wrap your layout in a FrameLayout if you
     find it helpful. HOWEVER, your puzzle board layout:
