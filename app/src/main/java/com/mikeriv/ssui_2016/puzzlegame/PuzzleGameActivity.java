@@ -89,9 +89,6 @@ public class PuzzleGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle_game);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         mScoreTextView = (TextView) findViewById(R.id.text_score);
 
         findViewById(R.id.btnNewGame).setOnClickListener(mNewGameButtonOnClickListener);
@@ -150,18 +147,10 @@ public class PuzzleGameActivity extends AppCompatActivity {
         display.getSize(size);
         int screenWidth = size.x;
         int screenHeight = size.y;
-        LinearLayout outerContainer = (LinearLayout)findViewById(R.id.outerContainer);
-        ViewGroup.MarginLayoutParams lpOuterContainer = (ViewGroup.MarginLayoutParams)
-                outerContainer.getLayoutParams();
-        int margin = lpOuterContainer.leftMargin;
-        int mainContentWidth = screenWidth - 2*margin;
-        int minTileSize = mainContentWidth / mPuzzleBoardSize;
 
-        LinearLayout btnScoreContainer = (LinearLayout)findViewById(R.id.btnScoreContainer);
-        int newVerticalMargin = (screenHeight - mainContentWidth / 4 * 5) / 2;
-        lpOuterContainer.topMargin = lpOuterContainer.bottomMargin = newVerticalMargin;
-        outerContainer.setLayoutParams(lpOuterContainer);
-        createPuzzleTileViews(100, 100);
+        int minTileSize = screenWidth / mPuzzleBoardSize;
+
+        createPuzzleTileViews(minTileSize, minTileSize);
     }
 
     /**
@@ -177,7 +166,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
         // Make sure each tileView gets a click listener for interaction
         // Be sure to set the appropriate LayoutParams so that your tileViews
         // So that they fit your gameboard properly\
-        LinearLayout outerContainer = (LinearLayout)findViewById(R.id.outerContainer);
+        LinearLayout outerContainer = (LinearLayout)findViewById(R.id.boardContainer);
         for(int r = 0; r < rowsCount; r++){
             LinearLayout rowContainer = new LinearLayout(getApplicationContext());
             rowContainer.setOrientation(LinearLayout.HORIZONTAL);
