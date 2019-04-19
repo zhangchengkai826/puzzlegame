@@ -151,13 +151,17 @@ public class PuzzleGameActivity extends AppCompatActivity {
         int screenWidth = size.x;
         int screenHeight = size.y;
         LinearLayout outerContainer = (LinearLayout)findViewById(R.id.outerContainer);
-        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
+        ViewGroup.MarginLayoutParams lpOuterContainer = (ViewGroup.MarginLayoutParams)
                 outerContainer.getLayoutParams();
-        int margin = lp.leftMargin;
-        int minTileWidth = (screenWidth-2*margin)/mPuzzleBoardSize;
-        int minTileHeight = (screenHeight-2*margin)/mPuzzleBoardSize;
-        int minTileSize = (minTileHeight > minTileWidth) ? minTileWidth : minTileHeight;
-        createPuzzleTileViews(minTileSize, minTileSize);
+        int margin = lpOuterContainer.leftMargin;
+        int mainContentWidth = screenWidth - 2*margin;
+        int minTileSize = mainContentWidth / mPuzzleBoardSize;
+
+        LinearLayout btnScoreContainer = (LinearLayout)findViewById(R.id.btnScoreContainer);
+        int newVerticalMargin = (screenHeight - mainContentWidth / 4 * 5) / 2;
+        lpOuterContainer.topMargin = lpOuterContainer.bottomMargin = newVerticalMargin;
+        outerContainer.setLayoutParams(lpOuterContainer);
+        createPuzzleTileViews(100, 100);
     }
 
     /**
@@ -175,18 +179,39 @@ public class PuzzleGameActivity extends AppCompatActivity {
         // So that they fit your gameboard properly\
         LinearLayout outerContainer = (LinearLayout)findViewById(R.id.outerContainer);
         for(int r = 0; r < rowsCount; r++){
+            LinearLayout rowContainer = new LinearLayout(getApplicationContext());
+            rowContainer.setOrientation(LinearLayout.HORIZONTAL);
+            LinearLayout.LayoutParams lpRowContainer = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    0.25f
+            );
+            rowContainer.setLayoutParams(lpRowContainer);
+
             for(int c = 0; c < colsCount; c++){
-               PuzzleGameTile tile = mPuzzleGameBoard.getTile(r, c);
-               if(!tile.isEmpty()){
-                   PuzzleGameTileView tileView = new PuzzleGameTileView(getApplicationContext(),
-                           r*mPuzzleBoardSize+c, minTileViewWidth, minTileViewHeight);
-                   ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(minTileViewWidth,
-                           minTileViewHeight);
-                   tileView.setLayoutParams(lp);
-                   tileView.setImageDrawable(tile.getDrawable());
-                   outerContainer.addView(tileView);
-               }
+                PuzzleGameTile tile = mPuzzleGameBoard.getTile(r, c);
+                PuzzleGameTileView tileView = new PuzzleGameTileView(getApplicationContext(),
+                       r*mPuzzleBoardSize+c, minTileViewWidth, minTileViewHeight);
+                ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(minTileViewWidth,
+                       minTileViewHeight);
+                tileView.setLayoutParams(lp);
+                tileView.setImageDrawable(tile.getDrawable());
+                if(tile.isEmpty())
+                   tileView.setVisibility(View.INVISIBLE);
+
+                LinearLayout imageContainer = new LinearLayout(getApplicationContext());
+                imageContainer.setOrientation(LinearLayout.HORIZONTAL);
+                LinearLayout.LayoutParams lpImageContainer = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        0.25f
+                );
+                imageContainer.setLayoutParams(lpImageContainer);
+                imageContainer.addView(tileView);
+
+                rowContainer.addView(imageContainer);
             }
+            outerContainer.addView(rowContainer);
         }
     }
 
