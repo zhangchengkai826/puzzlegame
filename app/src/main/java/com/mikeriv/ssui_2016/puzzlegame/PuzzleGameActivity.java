@@ -156,6 +156,8 @@ public class PuzzleGameActivity extends AppCompatActivity {
     // Views
     private TextView mScoreTextView;
 
+    private int mScore = 0;
+
     // The views for the puzzleboardtile models
     private PuzzleGameTileView[][] mPuzzleTileViews =
             new PuzzleGameTileView[mPuzzleBoardSize][mPuzzleBoardSize];
@@ -167,6 +169,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_puzzle_game);
 
         mScoreTextView = (TextView) findViewById(R.id.text_score);
+        updateScore();
 
         findViewById(R.id.btnNewGame).setOnClickListener(mNewGameButtonOnClickListener);
 
@@ -399,20 +402,21 @@ public class PuzzleGameActivity extends AppCompatActivity {
         refreshGameBoardView();
         if(hasWonGame()) {
             mGameState = PuzzleGameState.WON;
+            mScore++;
             updateScore();
 
-            AlertDialog.Builder alertDialog =
+            AlertDialog.Builder winNotifier =
                     new AlertDialog.Builder(PuzzleGameActivity.this);
-            alertDialog.setTitle(getResources().getString(R.string.win_title));
-            alertDialog.setMessage(getResources().getString(R.string.win_msg));
-            alertDialog.setPositiveButton(getResources().getString(R.string.btn_str_ok),
+            winNotifier.setTitle(getResources().getString(R.string.win_title));
+            winNotifier.setMessage(getResources().getString(R.string.win_msg));
+            winNotifier.setPositiveButton(getResources().getString(R.string.btn_str_ok),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
                         }
                     });
-            alertDialog.show();
+            winNotifier.show();
         }
     }
 
@@ -461,6 +465,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
      */
     private void updateScore() {
         // TODO update a score to be displayed to the user
+        mScoreTextView.setText(getResources().getString(R.string.title_score_board, mScore));
     }
 
     /**
@@ -551,5 +556,18 @@ public class PuzzleGameActivity extends AppCompatActivity {
 
         updateGameState();
         mGameState = PuzzleGameState.PLAYING;
+
+        AlertDialog.Builder newGameNotifier =
+                new AlertDialog.Builder(PuzzleGameActivity.this);
+        //newGameNotifier.setTitle(getResources().getString(R.string.new_game_notif_title));
+        newGameNotifier.setMessage(getResources().getString(R.string.new_game_notif_msg));
+        newGameNotifier.setPositiveButton(getResources().getString(R.string.btn_str_ok),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        newGameNotifier.show();
     }
 }
