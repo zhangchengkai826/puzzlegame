@@ -14,6 +14,9 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,11 +54,39 @@ public class PuzzleGameActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             // TODO start a new game if a new game button is clicked
-            mGameState = PuzzleGameState.PLAYING;
-            AlertDialog alertDialog = new AlertDialog.Builder(PuzzleGameActivity.this).create();
-            alertDialog.setTitle("Alert");
-            alertDialog.setMessage("New Game");
-            alertDialog.show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(PuzzleGameActivity.this);
+            builder.setTitle(getResources().getString(R.string.new_game_title));
+
+            final EditText gridSizeInput = new EditText(PuzzleGameActivity.this);
+            gridSizeInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            gridSizeInput.setHint("Grid Size");
+            gridSizeInput.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(s.length() == 0)
+                        return;
+                    int min = 3;
+                    int max = 5;
+                    int currVal = Integer.parseInt(s.toString());
+                    if(currVal < min)
+                        s.replace(0, s.length(), String.valueOf(min));
+                    else if(currVal > max)
+                        s.replace(0, s.length(), String.valueOf(max));
+                }
+            });
+            builder.setView(gridSizeInput);
+
+            builder.show();
         }
     };
 
@@ -154,7 +186,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
             for(int c = 0; c < mPuzzleGameBoard.getColumnsCount(); c++){
                 Bitmap bitmapSection = PuzzleImageUtil.getSubdivisionOfBitmap(fullImageBitmap,
                         tileSize, tileSize, r, c);
-                Drawable drawable = new BitmapDrawable(getApplicationContext().getResources(),
+                Drawable drawable = new BitmapDrawable(getResources(),
                         bitmapSection);
                 boolean isEmpty = false;
                 if(r == mPuzzleBoardSize-1 && c == mPuzzleBoardSize-1)
@@ -230,7 +262,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
         // So that they fit your gameboard properly\
         LinearLayout boardContainer = (LinearLayout)findViewById(R.id.boardContainer);
         for(int r = 0; r < rowsCount; r++){
-            LinearLayout rowContainer = new LinearLayout(getApplicationContext());
+            LinearLayout rowContainer = new LinearLayout(this);
             rowContainer.setOrientation(LinearLayout.HORIZONTAL);
             LinearLayout.LayoutParams lpRowContainer = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -241,14 +273,14 @@ public class PuzzleGameActivity extends AppCompatActivity {
 
             for(int c = 0; c < colsCount; c++){
                 PuzzleGameTile tile = mPuzzleGameBoard.getTile(r, c);
-                PuzzleGameTileView tileView = new PuzzleGameTileView(getApplicationContext(),
+                PuzzleGameTileView tileView = new PuzzleGameTileView(this,
                        r*mPuzzleBoardSize+c, minTileViewWidth, minTileViewHeight);
                 ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(minTileViewWidth,
                        minTileViewHeight);
                 tileView.setLayoutParams(lp);
                 tileView.setImageDrawable(tile.getDrawable());
 
-                LinearLayout imageContainer = new LinearLayout(getApplicationContext());
+                LinearLayout imageContainer = new LinearLayout(this);
                 imageContainer.setOrientation(LinearLayout.HORIZONTAL);
                 LinearLayout.LayoutParams lpImageContainer = new LinearLayout.LayoutParams(
                         0,
@@ -343,6 +375,20 @@ public class PuzzleGameActivity extends AppCompatActivity {
      */
     private void updateGameState() {
         // TODO refresh tiles and handle winning the game and updating score
+        refreshGameBoardView();
+        if(hasWonGame()) {
+            updateScore();
+
+            AlertDialog alertDialog = new AlertDialog.Builder(PuzzleGameActivity.this)
+                    .create();
+            alertDialog.setTitle(getResources().getString(R.string.win_title));
+            alertDialog.setMessage(getResources().getString(R.string.win_msg));
+            alertDialog.show();
+        }
+    }
+
+    private void refreshGameBoardView() {
+        // TODO update the PuzzleTileViews with the data stored in the PuzzleGameBoard
         LinearLayout boardContainer = (LinearLayout)findViewById(R.id.boardContainer);
         int rowCount = mPuzzleGameBoard.getRowsCount();
         int colCount = mPuzzleGameBoard.getColumnsCount();
@@ -362,10 +408,6 @@ public class PuzzleGameActivity extends AppCompatActivity {
         }
     }
 
-    private void refreshGameBoardView() {
-        // TODO update the PuzzleTileViews with the data stored in the PuzzleGameBoard
-    }
-
 
     /**
      * Checks the game board to see if the tile indices are in proper increasing order
@@ -373,8 +415,16 @@ public class PuzzleGameActivity extends AppCompatActivity {
      */
     private boolean hasWonGame() {
         // TODO check if the user has won the game
-        return false;
-
+        int rowCount = mPuzzleGameBoard.getRowsCount();
+        int colCount = mPuzzleGameBoard.getColumnsCount();
+        for(int r = 0; r < rowCount; r++){
+            for(int c = 0; c < colCount; c++) {
+                int tileIndex = mPuzzleGameBoard.getTile(r, c).getOrderIndex();
+                if(tileIndex != r * rowCount + c)
+                    return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -391,6 +441,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
     private void startNewGame() {
         // TODO - handle starting a new game by shuffling the tiles and showing a start message,
         // and updating the game state
+
     }
 
 

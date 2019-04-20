@@ -5,5 +5,8 @@
     <string name="title_score_board">Score: %d</string>
     <string name="title_puzzle_solved">Puzzle Solved! +%d Points</string>
     <string name="title_puzzle_start">Start!</string>
+    <string name="win_title">You Win!</string>
+    <string name="win_msg">Congratulations! You have successfully solved the puzzle!</string>
+    <string name="new_game_title">New Game</string>
 
 </resources>
