@@ -31,6 +31,8 @@ import com.mikeriv.ssui_2016.puzzlegame.model.PuzzleGameTile;
 import com.mikeriv.ssui_2016.puzzlegame.util.PuzzleImageUtil;
 import com.mikeriv.ssui_2016.puzzlegame.view.PuzzleGameTileView;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class PuzzleGameActivity extends AppCompatActivity {
@@ -98,7 +100,6 @@ public class PuzzleGameActivity extends AppCompatActivity {
 
         // Initializes the game and updates the game state
         initGame();
-        updateGameState();
     }
 
     /**
@@ -186,6 +187,10 @@ public class PuzzleGameActivity extends AppCompatActivity {
 
                         int minTileSize = screenWidth / mPuzzleBoardSize;
                         createPuzzleTileViews(minTileSize, minTileSize);
+
+                        shufflePuzzleTiles();
+
+                        updateGameState();
                     }
                 });
     }
@@ -248,7 +253,18 @@ public class PuzzleGameActivity extends AppCompatActivity {
     private void shufflePuzzleTiles() {
         // TODO randomly shuffle the tiles such that tiles may only move spots if it is randomly
         // swapped with a neighboring empty tile
-
+        int i = mPuzzleBoardSize * mPuzzleBoardSize - 1;
+        while(i > 0) {
+            int j = (int)Math.floor(Math.random() * i);
+            int ci = i % mPuzzleBoardSize;
+            int ri = i / mPuzzleBoardSize;
+            int cj = j % mPuzzleBoardSize;
+            int rj = j / mPuzzleBoardSize;
+            mPuzzleGameBoard.swapTiles(ri, ci, rj, cj);
+            --i;
+        }
+        resetEmptyTileLocation();
+        forceSolvable();
     }
 
     /**
@@ -256,6 +272,48 @@ public class PuzzleGameActivity extends AppCompatActivity {
      */
     private void resetEmptyTileLocation() {
         // TODO
+        int rowCount = mPuzzleGameBoard.getRowsCount();
+        int colCount = mPuzzleGameBoard.getColumnsCount();
+        for(int r = 0; r < rowCount; r++){
+            for(int c = 0; c < colCount; c++){
+                if(mPuzzleGameBoard.isEmptyTile(r, c)){
+                    mPuzzleGameBoard.swapTiles(r, c,
+                            rowCount-1, colCount-1);
+                    break;
+                }
+            }
+        }
+    }
+
+    private int sumInversions() {
+        int rowCount = mPuzzleGameBoard.getRowsCount();
+        int colCount = mPuzzleGameBoard.getColumnsCount();
+        ArrayList<Integer> prev = new ArrayList<>();
+        int sum = 0;
+        for(int r = 0; r < rowCount; r++){
+            for(int c = 0; c < colCount; c++){
+                int id = mPuzzleGameBoard.getTile(r, c).getOrderIndex();
+                prev.add(id);
+                int inv = id;
+                for(Integer i : prev){
+                    if(i < id){
+                        inv--;
+                    }
+                }
+                sum += inv;
+            }
+        }
+        return sum;
+    }
+
+    private boolean isSolvable(){
+        return sumInversions() % 2 == 0;
+    }
+
+    private void forceSolvable() {
+        if(isSolvable())
+            return;
+        mPuzzleGameBoard.swapTiles(0, 0, 0, 1);
     }
 
     /**
@@ -264,6 +322,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
      */
     private void updateGameState() {
         // TODO refresh tiles and handle winning the game and updating score
+
     }
 
     private void refreshGameBoardView() {
