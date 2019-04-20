@@ -69,6 +69,26 @@ public class PuzzleGameActivity extends AppCompatActivity {
             // with an empty tile
             // If any changes happen, be sure to update the state of the game to check for a win
             // condition
+            PuzzleGameTileView tileView = (PuzzleGameTileView)view;
+            int tileId = tileView.getTileId();
+            int rTile = tileId / mPuzzleBoardSize;
+            int cTile = tileId % mPuzzleBoardSize;
+
+            int rowCount = mPuzzleGameBoard.getRowsCount();
+            int colCount = mPuzzleGameBoard.getColumnsCount();
+            for(int r = 0; r < rowCount; r++){
+                for(int c = 0; c < colCount; c++){
+                    if(mPuzzleGameBoard.isEmptyTile(r, c)){
+                        if(mPuzzleGameBoard.areTilesNeighbors(rTile, cTile, r, c)) {
+                            mPuzzleGameBoard.swapTiles(rTile, cTile, r, c);
+                            mPuzzleGameBoard.getTile(r, c).setIsEmpty(false);
+                            mPuzzleGameBoard.getTile(rTile, cTile).setIsEmpty(true);
+                            updateGameState();
+                        }
+                        break;
+                    }
+                }
+            }
         }
     };
 
@@ -227,8 +247,6 @@ public class PuzzleGameActivity extends AppCompatActivity {
                        minTileViewHeight);
                 tileView.setLayoutParams(lp);
                 tileView.setImageDrawable(tile.getDrawable());
-                if(tile.isEmpty())
-                   tileView.setVisibility(View.INVISIBLE);
 
                 LinearLayout imageContainer = new LinearLayout(getApplicationContext());
                 imageContainer.setOrientation(LinearLayout.HORIZONTAL);
@@ -238,6 +256,9 @@ public class PuzzleGameActivity extends AppCompatActivity {
                         0.25f
                 );
                 imageContainer.setLayoutParams(lpImageContainer);
+
+                tileView.setOnClickListener(mGameTileOnClickListener);
+
                 imageContainer.addView(tileView);
 
                 rowContainer.addView(imageContainer);
@@ -333,6 +354,10 @@ public class PuzzleGameActivity extends AppCompatActivity {
                 PuzzleGameTileView tileView = (PuzzleGameTileView)
                         imageContainer.getChildAt(0);
                 tileView.updateWithTile(tile);
+                if(tile.isEmpty())
+                    tileView.setVisibility(View.INVISIBLE);
+                else
+                    tileView.setVisibility(View.VISIBLE);
             }
         }
     }
