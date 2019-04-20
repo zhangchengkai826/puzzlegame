@@ -6,7 +6,7 @@
     <string name="title_puzzle_solved">Puzzle Solved! +%d Points</string>
     <string name="title_puzzle_start">Start!</string>
     <string name="win_title">You Win!</string>
-    <string name="win_msg">Congratulations! You have successfully solved the puzzle!</string>
+    <string name="win_msg">Congratulations!\nYou have successfully solved the puzzle!</string>
     <string name="new_game_title">New Game</string>
     <string name="btn_str_ok">OK</string>
     <string name="btn_str_cancel">Cancel</string>

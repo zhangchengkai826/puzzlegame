@@ -76,7 +76,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
                 public void afterTextChanged(Editable s) {
                     if(s.length() == 0)
                         return;
-                    int min = 3;
+                    int min = 2;
                     int max = 5;
                     int currVal = Integer.parseInt(s.toString());
                     if(currVal < min)
@@ -401,10 +401,17 @@ public class PuzzleGameActivity extends AppCompatActivity {
             mGameState = PuzzleGameState.WON;
             updateScore();
 
-            AlertDialog alertDialog = new AlertDialog.Builder(PuzzleGameActivity.this)
-                    .create();
+            AlertDialog.Builder alertDialog =
+                    new AlertDialog.Builder(PuzzleGameActivity.this);
             alertDialog.setTitle(getResources().getString(R.string.win_title));
             alertDialog.setMessage(getResources().getString(R.string.win_msg));
+            alertDialog.setPositiveButton(getResources().getString(R.string.btn_str_ok),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
             alertDialog.show();
         }
     }
