@@ -60,6 +60,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
             final EditText gridSizeInput = new EditText(PuzzleGameActivity.this);
             gridSizeInput.setInputType(InputType.TYPE_CLASS_NUMBER);
             gridSizeInput.setHint("Grid Size");
+            gridSizeInput.setText(String.valueOf(mPuzzleBoardSize));
             gridSizeInput.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -85,6 +86,25 @@ public class PuzzleGameActivity extends AppCompatActivity {
                 }
             });
             builder.setView(gridSizeInput);
+
+            builder.setPositiveButton(getResources().getString(R.string.btn_str_ok),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String gridSizeStr = gridSizeInput.getText().toString();
+                            if(gridSizeStr.length() != 0)
+                                mPuzzleBoardSize = Integer.parseInt(gridSizeStr);
+                            startNewGame();
+                        }
+            });
+
+            builder.setNegativeButton(getResources().getString(R.string.btn_str_cancel),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
 
             builder.show();
         }
@@ -243,6 +263,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
                         shufflePuzzleTiles();
 
                         updateGameState();
+                        mGameState = PuzzleGameState.PLAYING;
                     }
                 });
     }
@@ -377,6 +398,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
         // TODO refresh tiles and handle winning the game and updating score
         refreshGameBoardView();
         if(hasWonGame()) {
+            mGameState = PuzzleGameState.WON;
             updateScore();
 
             AlertDialog alertDialog = new AlertDialog.Builder(PuzzleGameActivity.this)
@@ -441,8 +463,86 @@ public class PuzzleGameActivity extends AppCompatActivity {
     private void startNewGame() {
         // TODO - handle starting a new game by shuffling the tiles and showing a start message,
         // and updating the game state
+        mPuzzleGameBoard = new PuzzleGameBoard(mPuzzleBoardSize, mPuzzleBoardSize);
 
+        // Get the original image bitmap
+        Bitmap fullImageBitmap = BitmapFactory.decodeResource(getResources(), TILE_IMAGE_ID);
+        // Now scale the bitmap so it fits out screen dimensions and change aspect ratio (scale) to
+        // fit a square
+        int fullImageWidth = fullImageBitmap.getWidth();
+        int fullImageHeight = fullImageBitmap.getHeight();
+        int squareImageSize = (fullImageWidth > fullImageHeight) ? fullImageWidth : fullImageHeight;
+        fullImageBitmap = Bitmap.createScaledBitmap(
+                fullImageBitmap,
+                squareImageSize,
+                squareImageSize,
+                false);
+
+        // TODO calculate the appropriate size for each puzzle tile
+        int tileSize = fullImageBitmap.getWidth() / mPuzzleBoardSize;
+
+        // TODO create the PuzzleGameTiles for the PuzzleGameBoard using sections of the bitmap.
+        // You may find PuzzleImageUtil helpful for getting sections of the bitmap
+        // Also ensure the last tile (the bottom right tile) is set to be an "empty" tile
+        // (i.e. not filled with an section of the original image)
+        for(int r = 0; r < mPuzzleGameBoard.getRowsCount(); r++){
+            for(int c = 0; c < mPuzzleGameBoard.getColumnsCount(); c++){
+                Bitmap bitmapSection = PuzzleImageUtil.getSubdivisionOfBitmap(fullImageBitmap,
+                        tileSize, tileSize, r, c);
+                Drawable drawable = new BitmapDrawable(getResources(),
+                        bitmapSection);
+                boolean isEmpty = false;
+                if(r == mPuzzleBoardSize-1 && c == mPuzzleBoardSize-1)
+                    isEmpty = true;
+                PuzzleGameTile tile = new PuzzleGameTile(r*mPuzzleBoardSize+c,
+                        drawable, isEmpty);
+                mPuzzleGameBoard.setTile(tile, r, c);
+            }
+        }
+
+        final LinearLayout rootView = (LinearLayout)findViewById(R.id.layout_game_display);
+
+        // TODO createPuzzleTileViews with the appropriate width, height
+        int screenWidth = rootView.getWidth();
+        int screenHeight = rootView.getHeight();
+
+        int resid = (screenHeight - screenWidth) / 2;
+        float residWeight = (float)resid / screenHeight;
+        float mainContentWeight = 1 - 2*residWeight;
+
+        LinearLayout boardContainer = (LinearLayout)findViewById(R.id.boardContainer);
+        LinearLayout btnScoreContainer = (LinearLayout)findViewById(R.id.btnScoreContainer);
+        LinearLayout topPadding = (LinearLayout)findViewById(R.id.topPadding);
+
+        LinearLayout.LayoutParams lpBoardContainer = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                mainContentWeight
+        );
+        boardContainer.setLayoutParams(lpBoardContainer);
+
+        LinearLayout.LayoutParams lpBtnScoreContainer = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                residWeight
+        );
+        btnScoreContainer.setLayoutParams(lpBtnScoreContainer);
+
+        LinearLayout.LayoutParams lpTopPadding = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                residWeight
+        );
+        topPadding.setLayoutParams(lpTopPadding);
+
+        int minTileSize = screenWidth / mPuzzleBoardSize;
+
+        boardContainer.removeAllViews();
+        createPuzzleTileViews(minTileSize, minTileSize);
+
+        shufflePuzzleTiles();
+
+        updateGameState();
+        mGameState = PuzzleGameState.PLAYING;
     }
-
-
 }

@@ -8,5 +8,7 @@
     <string name="win_title">You Win!</string>
     <string name="win_msg">Congratulations! You have successfully solved the puzzle!</string>
     <string name="new_game_title">New Game</string>
+    <string name="btn_str_ok">OK</string>
+    <string name="btn_str_cancel">Cancel</string>
 
 </resources>
