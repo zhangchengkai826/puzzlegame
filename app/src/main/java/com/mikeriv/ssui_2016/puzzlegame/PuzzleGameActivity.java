@@ -322,7 +322,19 @@ public class PuzzleGameActivity extends AppCompatActivity {
      */
     private void updateGameState() {
         // TODO refresh tiles and handle winning the game and updating score
-
+        LinearLayout boardContainer = (LinearLayout)findViewById(R.id.boardContainer);
+        int rowCount = mPuzzleGameBoard.getRowsCount();
+        int colCount = mPuzzleGameBoard.getColumnsCount();
+        for(int r = 0; r < rowCount; r++){
+            LinearLayout rowContainer = (LinearLayout)boardContainer.getChildAt(r);
+            for(int c = 0; c < colCount; c++){
+                PuzzleGameTile tile = mPuzzleGameBoard.getTile(r, c);
+                LinearLayout imageContainer = (LinearLayout)rowContainer.getChildAt(c);
+                PuzzleGameTileView tileView = (PuzzleGameTileView)
+                        imageContainer.getChildAt(0);
+                tileView.updateWithTile(tile);
+            }
+        }
     }
 
     private void refreshGameBoardView() {
