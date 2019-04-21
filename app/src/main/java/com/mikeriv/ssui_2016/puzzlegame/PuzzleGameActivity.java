@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.icu.text.AlphabeticIndex;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,9 +24,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +39,10 @@ import com.mikeriv.ssui_2016.puzzlegame.util.PuzzleImageUtil;
 import com.mikeriv.ssui_2016.puzzlegame.view.PuzzleGameTileView;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class PuzzleGameActivity extends AppCompatActivity {
@@ -47,6 +53,12 @@ public class PuzzleGameActivity extends AppCompatActivity {
     // The id of the image to use for our puzzle game
     private static final int TILE_IMAGE_ID = R.drawable.kitty;
 
+    private static final HashMap<String, Integer> DRAWABLE_ID_MAP =
+            new HashMap<String, Integer>() {{
+                put("kitty", R.drawable.kitty);
+                put("duck", R.drawable.duck);
+            }};
+
     /**
      * Button Listener that starts a new game - this must be attached to the new game button
      */
@@ -56,6 +68,9 @@ public class PuzzleGameActivity extends AppCompatActivity {
             // TODO start a new game if a new game button is clicked
             AlertDialog.Builder builder = new AlertDialog.Builder(PuzzleGameActivity.this);
             builder.setTitle(getResources().getString(R.string.new_game_title));
+
+            final LinearLayout container = new LinearLayout(PuzzleGameActivity.this);
+            container.setOrientation(LinearLayout.VERTICAL);
 
             final EditText gridSizeInput = new EditText(PuzzleGameActivity.this);
             gridSizeInput.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -85,7 +100,17 @@ public class PuzzleGameActivity extends AppCompatActivity {
                         s.replace(0, s.length(), String.valueOf(max));
                 }
             });
-            builder.setView(gridSizeInput);
+            container.addView(gridSizeInput);
+
+            final Spinner imgSelector = new Spinner(PuzzleGameActivity.this);
+            String[] imgNames = new String[]{"kitty", "duck"};
+            ArrayAdapter<String> imgNamesAdaptor = new ArrayAdapter<String>(
+                    PuzzleGameActivity.this,
+                    android.R.layout.simple_spinner_dropdown_item, imgNames);
+            imgSelector.setAdapter(imgNamesAdaptor);
+            container.addView(imgSelector);
+
+            builder.setView(container);
 
             builder.setPositiveButton(getResources().getString(R.string.btn_str_ok),
                     new DialogInterface.OnClickListener() {
@@ -94,6 +119,8 @@ public class PuzzleGameActivity extends AppCompatActivity {
                             String gridSizeStr = gridSizeInput.getText().toString();
                             if(gridSizeStr.length() != 0)
                                 mPuzzleBoardSize = Integer.parseInt(gridSizeStr);
+                            mTileImageId =
+                                    DRAWABLE_ID_MAP.get(imgSelector.getSelectedItem().toString());
                             startNewGame();
                         }
             });
@@ -153,6 +180,8 @@ public class PuzzleGameActivity extends AppCompatActivity {
     // The puzzleboard model
     private PuzzleGameBoard mPuzzleGameBoard;
 
+    private int mTileImageId = TILE_IMAGE_ID;
+
     // Views
     private TextView mScoreTextView;
 
@@ -186,7 +215,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
         mPuzzleGameBoard = new PuzzleGameBoard(mPuzzleBoardSize, mPuzzleBoardSize);
 
         // Get the original image bitmap
-        Bitmap fullImageBitmap = BitmapFactory.decodeResource(getResources(), TILE_IMAGE_ID);
+        Bitmap fullImageBitmap = BitmapFactory.decodeResource(getResources(), mTileImageId);
         // Now scale the bitmap so it fits out screen dimensions and change aspect ratio (scale) to
         // fit a square
         int fullImageWidth = fullImageBitmap.getWidth();
@@ -478,7 +507,7 @@ public class PuzzleGameActivity extends AppCompatActivity {
         mPuzzleGameBoard = new PuzzleGameBoard(mPuzzleBoardSize, mPuzzleBoardSize);
 
         // Get the original image bitmap
-        Bitmap fullImageBitmap = BitmapFactory.decodeResource(getResources(), TILE_IMAGE_ID);
+        Bitmap fullImageBitmap = BitmapFactory.decodeResource(getResources(), mTileImageId);
         // Now scale the bitmap so it fits out screen dimensions and change aspect ratio (scale) to
         // fit a square
         int fullImageWidth = fullImageBitmap.getWidth();
